@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Verify 2FA - 2FA Demo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="navbar">
+            <h1>Verify 2FA</h1>
+        </div>
+        
+        <div class="card" style="max-width: 500px; margin: 30px auto;">
+            <h2 style="text-align: center;">Verify Two-Factor Authentication</h2>
+            
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-danger">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <form method="POST" action="{{ url_for('verify_2fa') }}">
+                <div class="form-group">
+                    <label for="token">Enter 6-digit code from your authenticator app:</label>
+                    <input type="text" id="token" name="token" class="form-control" pattern="\d{6}" required 
+                           placeholder="123456" style="text-align: center; letter-spacing: 5px; font-size: 1.2rem;">
+                </div>
+                <button type="submit" class="btn" style="width: 100%; margin-top: 20px;">Verify</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

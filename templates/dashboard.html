@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard - 2FA Demo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="navbar">
+            <h1>Dashboard</h1>
+            <div class="nav-links">
+                <a href="{{ url_for('logout') }}" class="btn btn-outline">Logout</a>
+            </div>
+        </div>
+        
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-success">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <div class="card">
+            {% if not current_user.two_factor or current_user.two_factor|length == 0 or not current_user.two_factor[0].is_active %}
+                <div style="text-align: center;">
+                    <h2>Two-Factor Authentication</h2>
+                    <p style="margin-bottom: 20px;">Secure your account with 2FA</p>
+                    <a href="{{ url_for('setup_2fa') }}" class="btn">Enable 2FA</a>
+                </div>
+            {% else %}
+                <div class="two-factor-status" style="text-align: center;">
+                    <h2>Two-Factor Authentication</h2>
+                    <p style="margin-bottom: 20px;">Your account is protected with 2FA</p>
+                    
+                    <div class="code-display">
+                        <div style="font-size: 0.9rem; margin-bottom: 5px;">Current Verification Code</div>
+                        <strong id="current-code">Loading...</strong>
+                    </div>
+                    
+                    <div class="countdown-container" style="width: 100%; max-width: 400px; margin: 0 auto;">
+                        <p style="text-align: center;">Code expires in: <span id="countdown">30</span> seconds</p>
+                        <div class="countdown-bar" id="countdown-bar" style="margin: 10px auto;"></div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        let currentCode = '';
+        let timeRemaining = 30;
+        let totalTime = 30;
+        const codeElement = document.getElementById('current-code');
+        const countdownElement = document.getElementById('countdown');
+        const countdownBar = document.getElementById('countdown-bar');
+        
+        async function fetchCurrentCode() {
+            try {
+                const response = await fetch('/api/current_2fa_code');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.code && data.code !== currentCode) {
+                        currentCode = data.code;
+                        codeElement.textContent = data.code;
+                        codeElement.classList.add('code-change');
+                        setTimeout(() => codeElement.classList.remove('code-change'), 500);
+                    }
+                    timeRemaining = data.time_remaining;
+                    totalTime = data.interval;
+                }
+            } catch (error) {
+                console.error('Error fetching 2FA code:', error);
+            }
+        }
+        
+        function updateDisplay() {
+            // Update countdown display
+            countdownElement.textContent = timeRemaining;
+            const percentage = (timeRemaining / totalTime) * 100;
+            countdownBar.style.width = percentage + '%';
+            countdownBar.style.backgroundColor = percentage > 50 ? '#4CAF50' : 
+                                              percentage > 20 ? '#FFC107' : '#F44336';
+            
+            // Visual effects for code display
+            if (timeRemaining <= 10) {
+                // Gradually turn red in last 10 seconds
+                const redValue = Math.floor(255 * (1 - (timeRemaining / 10)));
+                codeElement.style.color = `rgb(${redValue}, 0, 0)`;
+                
+                // Blinking effect in last 5 seconds
+                if (timeRemaining <= 5) {
+                    codeElement.style.animation = 'blink 0.5s infinite';
+                } else {
+                    codeElement.style.animation = '';
+                }
+            } else {
+                codeElement.style.color = '';
+                codeElement.style.animation = '';
+            }
+            
+            // Decrement time remaining
+            timeRemaining--;
+            
+            // Refresh data when code is about to expire
+            if (timeRemaining <= 3) {
+                fetchCurrentCode();
+            }
+        }
+
+        // Add blink animation to style
+        const style = document.createElement('style');
+        style.innerHTML = `
+            @keyframes blink {
+                0% { opacity: 1; }
+                50% { opacity: 0.7; }
+                100% { opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Initial fetch
+        fetchCurrentCode();
+        
+        // Update display every second
+        setInterval(updateDisplay, 1000);
+        
+        // Refresh code every 15 seconds to ensure it's current
+        setInterval(fetchCurrentCode, 15000);
+    </script>
+</body>
+</html>
