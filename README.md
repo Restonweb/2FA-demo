@@ -1,5 +1,8 @@
 # Two-Factor Authentication (2FA) Demo / 双因素认证演示
 
+![Uploading image.png…]()
+
+
 ## Introduction / 简介
 
 A Flask-based web application demonstrating Time-based One-Time Password (TOTP) two-factor authentication.  
@@ -31,7 +34,7 @@ TOTP(基于时间的一次性密码)是一种使用当前时间作为唯一性�
 
 ```bash
 # Clone repository / 克隆仓库
-git clone [repository-url]
+git clone [[repository-url]](https://github.com/Restonweb/2FA-demo.git)
 cd 2FA
 
 # Install dependencies / 安装依赖
