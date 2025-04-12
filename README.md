@@ -1,6 +1,5 @@
 # Two-Factor Authentication (2FA) Demo / 双因素认证演示
 
-![Uploading image.png…]()
 
 
 ## Introduction / 简介
