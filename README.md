@@ -6,15 +6,13 @@ A Flask-based web application demonstrating Time-based One-Time Password (TOTP) 
 一个基于Flask的演示时间型一次性密码(TOTP)双因素认证的Web应用。
 
 ## TOTP Principle / TOTP原理
-
-**English**:  
+ 
 TOTP (Time-based One-Time Password) is an algorithm that generates temporary passcodes using the current time as a source of uniqueness. It works by:
 1. Server and client share a secret key
 2. Both sides generate a code based on current timestamp and the secret
 3. The code refreshes every 30 seconds
 4. User enters the current code to verify identity
-
-**中文**:  
+ 
 TOTP(基于时间的一次性密码)是一种使用当前时间作为唯一性源的算法，工作原理：
 1. 服务端和客户端共享一个密钥
 2. 双方基于当前时间戳和密钥生成代码
